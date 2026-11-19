@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Replace OWNER_UID with the UID of the one authorized owner account.
+    function isOwner() {
+      return request.auth != null && request.auth.uid == "OWNER_UID";
+    }
+
+    match /admins/{uid} {
+      // No admin management through the app. Keep only the owner's auth account.
+      allow read, write: if false;
+    }
+
+    match /donors/{donorId} {
+      allow read, create, update, delete: if isOwner();
+    }
+  }
+}
